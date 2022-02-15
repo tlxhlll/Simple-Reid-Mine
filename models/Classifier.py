@@ -27,7 +27,7 @@ class NormalizedClassifier(nn.Module):
         self.weight = Parameter(torch.Tensor(num_classes, feature_dim))
         self.weight.data.uniform_(-1, 1).renorm_(2,0,1e-5).mul_(1e5) 
         torch.set_printoptions(profile="full")
-        print(self.weight)
+        self.weight
 
     def forward(self, x):
         w = self.weight  
