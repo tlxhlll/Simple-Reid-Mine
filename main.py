@@ -94,6 +94,9 @@ def main(config):
     best_rank1 = -np.inf
     best_epoch = 0
     print("==> Start training")
+
+    ttest=torch.tensor(5.3)
+    print(ttest)
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
