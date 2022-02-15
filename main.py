@@ -95,8 +95,7 @@ def main(config):
     best_epoch = 0
     print("==> Start training")
 
-    ttest=torch.Tensor(5,3)
-    print(ttest)
+
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
