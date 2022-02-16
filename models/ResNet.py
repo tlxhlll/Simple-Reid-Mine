@@ -24,6 +24,6 @@ class ResNet50(nn.Module):
         x = x.view(x.size(0), -1)
         f = self.bn(x)
 
-        print(f.shape)
+        print(f.size())
 
         return f
