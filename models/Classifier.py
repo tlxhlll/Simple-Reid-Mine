@@ -24,8 +24,9 @@ class Classifier(nn.Module):
 class NormalizedClassifier(nn.Module):
     def __init__(self, feature_dim, num_classes):
         super().__init__()
-        self.weight = Parameter(torch.Tensor(num_classes, feature_dim))
-        self.weight.data.uniform_(-1, 1).renorm_(2,0,1e-5).mul_(1e5) 
+        self.weight = Parameter(torch.Tensor(num_classes, feature_dim)) #same as cluster memory M
+        self.weight.data.uniform_(-1, 1).renorm_(2,0,1e-5).mul_(1e5)    #if we use the way of that paper, weight should be initilized
+                                                                        #by the mean feature of each class
 
 
     def forward(self, x):
