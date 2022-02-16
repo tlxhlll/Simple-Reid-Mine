@@ -11,8 +11,9 @@ __all__ = ['Classifier', 'NormalizedClassifier']
 class Classifier(nn.Module):
     def __init__(self, feature_dim, num_classes):
         super().__init__()
-        self.classifier = nn.Linear(feature_dim, num_classes)
+        self.classifier = nn.Linear(feature_dim, num_classes) #2048到751的全连接层？
         init.normal_(self.classifier.weight.data, std=0.001)
+        print(self.classifier.weight.data.size())
         init.constant_(self.classifier.bias.data, 0.0)
 
     def forward(self, x):
