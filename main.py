@@ -149,7 +149,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
         optimizer.zero_grad()
         # Forward
         features = model(imgs)
-        print("features={}/n".format(features))
+        print("features shape={}/n".format(features.size()))
         outputs = classifier(features)
         _, preds = torch.max(outputs.data, 1)
         # Compute loss
