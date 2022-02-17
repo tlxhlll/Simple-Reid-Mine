@@ -141,7 +141,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
         imgs, pids = imgs.cuda(), pids.cuda()
 
         #print("pids={}\n".format(pids))
-        print("batch_idx={}/n".format(batch_idx))
+        #print("batch_idx={}/n".format(batch_idx))
 
         # Measure data loading time
         data_time.update(time.time() - end)
@@ -149,6 +149,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
         optimizer.zero_grad()
         # Forward
         features = model(imgs)
+        print("features={}/n".format(features))
         outputs = classifier(features)
         _, preds = torch.max(outputs.data, 1)
         # Compute loss
