@@ -18,6 +18,7 @@ class Classifier(nn.Module):
 
     def forward(self, x):
         y = self.classifier(x)
+        print("y={}/n".format(y))
 
         return y
         
