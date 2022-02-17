@@ -139,6 +139,9 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
     end = time.time()
     for batch_idx, (imgs, pids, _) in enumerate(trainloader):
         imgs, pids = imgs.cuda(), pids.cuda()
+
+        print("pids={}\n".format(pids))
+
         # Measure data loading time
         data_time.update(time.time() - end)
         # Zero the parameter gradients
