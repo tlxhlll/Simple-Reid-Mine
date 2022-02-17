@@ -13,12 +13,13 @@ class Classifier(nn.Module):
         super().__init__()
         self.classifier = nn.Linear(feature_dim, num_classes) #2048到751的全连接层？
         init.normal_(self.classifier.weight.data, std=0.001)
-        print(self.classifier.weight.data.size())
+        #print(self.classifier.weight.data.size())
         init.constant_(self.classifier.bias.data, 0.0)
+
 
     def forward(self, x):
         y = self.classifier(x)
-        print("y={}/n".format(y))
+        #print("y={}/n".format(y))
 
         return y
         
