@@ -148,9 +148,10 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
         # Zero the parameter gradients
         optimizer.zero_grad()
         # Forward
-        features = model(imgs) #shape 64*2048,data such as 
-        print("features={}/n".format(features))
+        features = model(imgs) #shape 64*2048,data such as 0.xxxx,1.xxxx,-0.xxxx,-1.xxxx
+        #print("features={}/n".format(features))
         outputs = classifier(features)
+        print("outputs={}/n".format(outputs))
         _, preds = torch.max(outputs.data, 1)
         # Compute loss
         cla_loss = criterion_cla(outputs, pids)
