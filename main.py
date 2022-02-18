@@ -108,6 +108,7 @@ def main(config):
         if epoch==0:
             for batch_idx, (imgs, pids, _) in enumerate(initloader):
                 imgs, pids = imgs.cuda(), pids.cuda()
+                print(batch_idx )
         
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
