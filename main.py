@@ -111,7 +111,7 @@ def main(config):
                 print(batch_idx )
                 print("pids={}\n".format(pids_init))
                 features_init = model(imgs_init)
-                print("features_init size={}\n".format(features_init.size()))
+                print("features_init size={}\n".format(features_init))
         
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
