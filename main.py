@@ -109,6 +109,7 @@ def main(config):
             for batch_idx, (imgs, pids, _) in enumerate(initloader):
                 imgs, pids = imgs.cuda(), pids.cuda()
                 print(batch_idx )
+                print("pids={}\n".format(pids))
         
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
