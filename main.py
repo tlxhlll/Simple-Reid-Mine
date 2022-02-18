@@ -101,7 +101,6 @@ def main(config):
     #new
     Mi = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
     Mc = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
-    embed()
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
