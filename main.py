@@ -101,6 +101,7 @@ def main(config):
     #new
     Mi = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
     Mc = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
+    print("Mi size={}".format(Mi.size()))
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
@@ -152,7 +153,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
     for batch_idx, (imgs, pids, _) in enumerate(trainloader):
         imgs, pids = imgs.cuda(), pids.cuda()
 
-        print("pids={}\n".format(pids))
+        #print("pids={}\n".format(pids))
         #print("batch_idx={}/n".format(batch_idx))
 
         # Measure data loading time
