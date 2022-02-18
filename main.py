@@ -106,10 +106,12 @@ def main(config):
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
         if epoch==0:
-            for batch_idx, (imgs, pids, _) in enumerate(initloader):
-                imgs, pids = imgs.cuda(), pids.cuda()
+            for batch_idx, (imgs_init, pids_init, _) in enumerate(initloader):
+                imgs_init, pids_init = imgs_init.cuda(), pids_init.cuda()
                 print(batch_idx )
-                print("pids={}\n".format(pids))
+                print("pids={}\n".format(pids_init))
+                features_init = model(imgs_init)
+                print("features_init size={}\n".format(features_init.size()))
         
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
