@@ -53,6 +53,7 @@ def main(config):
 
     # Build dataloader
     trainloader, queryloader, galleryloader, num_classes = build_dataloader(config)
+    print("num_classes={}\n".format(num_classes))
     # Build model
     model, classifier = build_model(config, num_classes)
     # Build classification and pairwise loss
@@ -149,11 +150,11 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
         optimizer.zero_grad()
         # Forward
         features = model(imgs) #shape 64*2048,data such as 0.xxxx,1.xxxx,-0.xxxx,-1.xxxx
-        outputs = classifier(features) #也是小数，但是比features小得多
-        print("outputs size={}/n".format(outputs.size()))
+        outputs = classifier(features) #也是小数，但是比features小得多 64*751
         
-        _, preds = torch.max(outputs.data, 1)
+        _, preds = torch.max(outputs.data, 1) #preds是每一张image从属于哪一类的预测
         #print("preds={}/n".format(preds))
+
         # Compute loss
         cla_loss = criterion_cla(outputs, pids)
         pair_loss = criterion_pair(features, pids)
