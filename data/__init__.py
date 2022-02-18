@@ -63,4 +63,7 @@ def build_dataloader(config):
                                batch_size=config.DATA.TEST_BATCH, num_workers=config.DATA.NUM_WORKERS,
                                pin_memory=True, drop_last=False, shuffle=False)
 
-    return trainloader, queryloader, galleryloader, dataset.num_train_pids
+    initloader = DataLoader(ImageDataset(dataset.train, transform=transform_test),
+                               batch_size=config.DATA.TEST_BATCH, num_workers=config.DATA.NUM_WORKERS,
+                               pin_memory=True, drop_last=False, shuffle=False)
+    return trainloader, queryloader, galleryloader,initloader, dataset.num_train_pids

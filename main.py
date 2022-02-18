@@ -19,6 +19,8 @@ from losses import build_losses
 from tools.eval_metrics import evaluate
 from tools.utils import AverageMeter, Logger, save_checkpoint, set_seed
 
+from IPython import embed
+
 
 def parse_option():
     parser = argparse.ArgumentParser(description='Train image-based re-id model')
@@ -52,7 +54,7 @@ def main(config):
     set_seed(config.SEED)
 
     # Build dataloader
-    trainloader, queryloader, galleryloader, num_classes = build_dataloader(config)
+    trainloader, queryloader, galleryloader, initloader, num_classes = build_dataloader(config)
     #print("num_classes={}\n".format(num_classes))
     # Build model
     model, classifier = build_model(config, num_classes)
@@ -96,8 +98,17 @@ def main(config):
     best_epoch = 0
     print("==> Start training")
 
+    #new
+    Mi = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
+    Mc = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
+    embed()
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
+        #new
+        if epoch==0:
+            for batch_idx, (imgs, pids, _) in enumerate(initloader):
+                imgs, pids = imgs.cuda(), pids.cuda()
+        
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
         train_time += round(time.time() - start_train_time)        
@@ -138,6 +149,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
     classifier.train()
 
     end = time.time()
+    
     for batch_idx, (imgs, pids, _) in enumerate(trainloader):
         imgs, pids = imgs.cuda(), pids.cuda()
 
@@ -244,6 +256,8 @@ def test(model, queryloader, galleryloader):
     print("------------------------------------------------")
 
     return cmc[0]
+
+
 
 
 if __name__ == '__main__':
