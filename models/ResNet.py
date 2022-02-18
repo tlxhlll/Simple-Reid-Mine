@@ -24,6 +24,6 @@ class ResNet50(nn.Module):
         x = x.view(x.size(0), -1)
         f = self.bn(x)
 
-        print(f.size())  #32*2048 batchsize is 32, channel is 2048
+        #print(f.size())  #64*2048 batchsize is 64, channel is 2048
 
         return f

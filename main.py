@@ -141,7 +141,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
     for batch_idx, (imgs, pids, _) in enumerate(trainloader):
         imgs, pids = imgs.cuda(), pids.cuda()
 
-        #print("pids={}\n".format(pids))
+        print("pids={}\n".format(pids))
         #print("batch_idx={}/n".format(batch_idx))
 
         # Measure data loading time
@@ -157,7 +157,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
 
         # Compute loss
         cla_loss = criterion_cla(outputs, pids)
-        print("cla_loss={}\n".format(cla_loss))
+        #print("cla_loss={}\n".format(cla_loss))
         pair_loss = criterion_pair(features, pids)
         loss = cla_loss + pair_loss     
         # Backward + Optimize
