@@ -53,7 +53,7 @@ def main(config):
 
     # Build dataloader
     trainloader, queryloader, galleryloader, num_classes = build_dataloader(config)
-    print("num_classes={}\n".format(num_classes))
+    #print("num_classes={}\n".format(num_classes))
     # Build model
     model, classifier = build_model(config, num_classes)
     # Build classification and pairwise loss
@@ -157,6 +157,7 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
 
         # Compute loss
         cla_loss = criterion_cla(outputs, pids)
+        print("cla_loss={}\n".format(cla_loss))
         pair_loss = criterion_pair(features, pids)
         loss = cla_loss + pair_loss     
         # Backward + Optimize
