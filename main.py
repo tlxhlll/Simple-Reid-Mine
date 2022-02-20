@@ -108,7 +108,7 @@ def main(config):
     #new
     print("==> Load unlabeled dataset")
     dataset = get_data(config.DATA.DATASET, config.DATA.ROOT)
-    test_loader = get_test_loader(dataset, config.height, config.width, config.batch_size, config.workers)
+    test_loader = get_test_loader(dataset, config.DATA.HEIGHT, config.DATA.WIDTH, config.DATA.TRAIN_BATCH, config.DATA.NUM_WORKERS)
 
     start_time = time.time()
     train_time = 0
@@ -122,7 +122,7 @@ def main(config):
         #new
         if epoch==0:
             with torch.no_grad():
-                cluster_loader = get_test_loader(dataset, config.height, config.width,config.batch_size, config.workers, testset=sorted(dataset.train)) 
+                cluster_loader = get_test_loader(dataset, config.DATA.HEIGHT, config.DATA.WIDTH, config.DATA.TRAIN_BATCH, config.DATA.NUM_WORKERS, testset=sorted(dataset.train)) 
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
                 features = torch.cat([features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
                 labels = torch.cat([labels[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
@@ -280,7 +280,7 @@ def test(model, queryloader, galleryloader):
 #new
 def get_data(name, data_dir):
     root = osp.join(data_dir, name)
-    print("root={}\n".format(root))
+    print("root={}".format(root))
     dataset = data.create(name, root)
     return dataset
 
