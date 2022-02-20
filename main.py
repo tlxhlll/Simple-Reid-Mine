@@ -107,7 +107,7 @@ def main(config):
 
     #new
     print("==> Load unlabeled dataset")
-    dataset = get_data(config.DATA.DATASET, config.DATA.DATA_DIR)
+    dataset = get_data(config.DATA.DATASET, config.DATA.ROOT)
     test_loader = get_test_loader(dataset, config.height, config.width, config.batch_size, config.workers)
 
     start_time = time.time()
