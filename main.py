@@ -280,7 +280,7 @@ def test(model, queryloader, galleryloader):
 #new
 def get_data(name, data_dir):
     root = osp.join(data_dir, name)
-    print(root)
+    print("root={}\n".format(root))
     dataset = data.create(name, root)
     return dataset
 
