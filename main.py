@@ -3,6 +3,8 @@ import sys
 import time
 import datetime
 import argparse
+import collections
+import random
 import os.path as osp
 import numpy as np
 
@@ -10,14 +12,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 
+from __future__ import absolute_import,print_function
+import warnings
 from configs.default import get_config
 from data import build_dataloader
+import data
 from models import build_model
 from losses import build_losses
-from tools.eval_metrics import evaluate
+from tools.eval_metrics import evaluate,extract_features
 from tools.utils import AverageMeter, Logger, save_checkpoint, set_seed
+from data import transforms as T
+from data.Preprocessor import Preprocessor
 
 from IPython import embed
 
@@ -92,26 +100,28 @@ def main(config):
         test(model, queryloader, galleryloader)
         return
 
+    #new
+    print("==> Load unlabeled dataset")
+    dataset = get_data(config.dataset, config.data_dir)
+    test_loader = get_test_loader(dataset, config.height, config.width, config.batch_size, config.workers)
+
     start_time = time.time()
     train_time = 0
     best_rank1 = -np.inf
     best_epoch = 0
     print("==> Start training")
 
-    #new
-    Mi = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
-    Mc = torch.Tensor(num_classes,config.MODEL.FEATURE_DIM)
-    print("Mi size={}".format(Mi.size()))
+
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
         if epoch==0:
-            for batch_idx, (imgs_init, pids_init, _) in enumerate(initloader):
-                imgs_init, pids_init = imgs_init.cuda(), pids_init.cuda()
-                print(batch_idx )
-                print("pids={}\n".format(pids_init))
-                features_init = model(imgs_init)
-                print("features_init size={}\n".format(features_init))
+            with torch.no_grad():
+                cluster_loader = get_test_loader(dataset, config.height, config.width,config.batch_size, config.workers, testset=sorted(dataset.train)) 
+                features, labels = extract_features(model, cluster_loader, print_freq=50)
+                features = torch.cat([features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
+                labels = torch.cat([labels[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
+                print("feature cat size={}/n".format(features.size()))
         
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
@@ -262,7 +272,32 @@ def test(model, queryloader, galleryloader):
     return cmc[0]
 
 
+#new
+def get_data(name, data_dir):
+    root = osp.join(data_dir, name)
+    print(root)
+    dataset = data.create(name, root)
+    return dataset
 
+def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
+    normalizer = T.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+
+    test_transformer = T.Compose([
+        T.Resize((height, width), interpolation=3),
+        T.ToTensor(),
+        normalizer
+    ])
+
+    if testset is None:
+        testset = list(set(dataset.query) | set(dataset.gallery))
+
+    test_loader = DataLoader(
+        Preprocessor(testset, root=dataset.images_dir, transform=test_transformer),
+        batch_size=batch_size, num_workers=workers,
+        shuffle=False, pin_memory=True)
+
+    return test_loader
 
 if __name__ == '__main__':
     config = parse_option()

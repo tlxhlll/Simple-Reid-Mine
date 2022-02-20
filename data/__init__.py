@@ -1,4 +1,6 @@
 import data.transforms as T
+import warnings
+from __future__ import absolute_import
 from torch.utils.data import DataLoader
 from data.datasets import Market1501, CUHK03, DukeMTMCreID, MSMT17
 from data.dataset_loader import ImageDataset
@@ -45,7 +47,36 @@ def build_transforms(config):
     ])
 
     return transform_train, transform_test
+def names():
+    return sorted(__factory.keys())
 
+
+def create(name, root, *args, **kwargs):
+    """
+    Create a dataset instance.
+
+    Parameters
+    ----------
+    name : str
+        The dataset name. 
+    root : str
+        The path to the dataset directory.
+    split_id : int, optional
+        The index of data split. Default: 0
+    num_val : int or float, optional
+        When int, it means the number of validation identities. When float,
+        it means the proportion of validation to all the trainval. Default: 100
+    download : bool, optional
+        If True, will download the dataset. Default: False
+    """
+    if name not in __factory:
+        raise KeyError("Unknown dataset:", name)
+    return __factory[name](root, *args, **kwargs)
+
+
+def get_dataset(name, root, *args, **kwargs):
+    warnings.warn("get_dataset is deprecated. Use create instead.")
+    return create(name, root, *args, **kwargs)
 
 def build_dataloader(config):
     dataset = build_dataset(config)
