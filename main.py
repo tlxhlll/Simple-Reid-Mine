@@ -126,6 +126,7 @@ def main(config):
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
                 features = torch.cat([features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
                 labels = torch.cat([labels[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
+                embed()
                 print("feature cat size={}/n".format(features.size()))
         
         start_train_time = time.time()
