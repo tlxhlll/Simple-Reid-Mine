@@ -282,6 +282,7 @@ def get_data(name, data_dir):
     root = osp.join(data_dir, name)
     print("root={}".format(root))
     dataset = data.create(name, root)
+    
     return dataset
 
 def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
@@ -297,9 +298,9 @@ def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
     if testset is None:
         testset = list(set(dataset.query) | set(dataset.gallery))
 
-    print("dataset.attr={}\n".format(getattr(dataset)))
+    #print("dataset.attr={}\n".format(getattr(dataset)))
     test_loader = DataLoader(
-        Preprocessor(testset, root=dataset.images_dir, transform=test_transformer),
+        Preprocessor(testset, root=None, transform=test_transformer),
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
 
