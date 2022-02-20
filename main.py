@@ -1,3 +1,4 @@
+from __future__ import absolute_import,print_function
 import os
 import sys
 import time
@@ -15,7 +16,6 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
 
-from __future__ import absolute_import,print_function
 import warnings
 from configs.default import get_config
 from data import build_dataloader

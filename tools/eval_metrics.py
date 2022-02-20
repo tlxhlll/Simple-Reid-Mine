@@ -1,4 +1,13 @@
+from __future__ import print_function, absolute_import
+import time
+import collections
+from collections import OrderedDict
 import numpy as np
+import torch
+import random
+import copy
+
+from utils import AverageMeter,to_torch
 
 
 def compute_ap_cmc(index, good_index, junk_index):
@@ -62,3 +71,50 @@ def evaluate(distmat, q_pids, g_pids, q_camids, g_camids):
     mAP = AP / (num_q - num_no_gt)
 
     return CMC, mAP
+
+def extract_features(model, data_loader, print_freq=50):
+    model.eval()
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+
+    features = OrderedDict()
+    labels = OrderedDict()
+
+    end = time.time()
+    with torch.no_grad():
+        for i, (imgs, fnames, pids, _, _) in enumerate(data_loader):
+            data_time.update(time.time() - end)
+
+            outputs = extract_cnn_feature(model, imgs)
+            for fname, output, pid in zip(fnames, outputs, pids):
+                features[fname] = output
+                labels[fname] = pid
+
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            if (i + 1) % print_freq == 0:
+                print('Extract Features: [{}/{}]\t'
+                      'Time {:.3f} ({:.3f})\t'
+                      'Data {:.3f} ({:.3f})\t'
+                      .format(i + 1, len(data_loader),
+                              batch_time.val, batch_time.avg,
+                              data_time.val, data_time.avg))
+
+    return features, labels
+
+def extract_cnn_feature(model, inputs):
+    inputs1 = to_torch(inputs).cuda()
+    outputs1 = model(inputs1)
+    outputs1 = outputs1.data.cpu()
+
+    inputs2 = inputs.index_select(3, torch.arange(inputs.size(3) - 1, -1, -1))
+    inputs2 = to_torch(inputs2).cuda()
+    outputs2 = model(inputs2)
+    outputs2 = outputs2.data.cpu()
+
+    ff = outputs1+outputs2
+    fnorm = torch.norm(ff, p=2, dim=1, keepdim=True)
+    outputs = ff.div(fnorm.expand_as(ff))
+
+    return outputs

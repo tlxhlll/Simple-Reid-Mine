@@ -1,6 +1,6 @@
+from __future__ import absolute_import
 import data.transforms as T
 import warnings
-from __future__ import absolute_import
 from torch.utils.data import DataLoader
 from data.datasets import Market1501, CUHK03, DukeMTMCreID, MSMT17
 from data.dataset_loader import ImageDataset
