@@ -126,7 +126,6 @@ def main(config):
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
                 features = torch.cat([features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
                 labels = torch.cat([labels[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
-                embed()
                 print("feature cat size={}/n".format(features.size()))
         
         start_train_time = time.time()
@@ -301,7 +300,7 @@ def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
 
     #print("dataset.attr={}\n".format(getattr(dataset)))
     test_loader = DataLoader(
-        Preprocessor(testset, root=None, transform=test_transformer),
+        Preprocessor(testset, root=dataset.images_dir, transform=test_transformer),
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
 
