@@ -11,12 +11,17 @@ import numpy as np
 
 import torch
 import torch.nn as nn
+from torch.backends import cudnn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler
-
+from torch.utils.data import DataLoader
+import scipy.io as sio
 import warnings
+
+from sklearn.cluster import DBSCAN
+
 from configs.default import get_config
 from data import build_dataloader
 import data
@@ -102,7 +107,7 @@ def main(config):
 
     #new
     print("==> Load unlabeled dataset")
-    dataset = get_data(config.dataset, config.data_dir)
+    dataset = get_data(config.data.dataset, config.data.data_dir)
     test_loader = get_test_loader(dataset, config.height, config.width, config.batch_size, config.workers)
 
     start_time = time.time()

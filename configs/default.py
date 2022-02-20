@@ -12,6 +12,8 @@ _C.DATA = CN()
 _C.DATA.ROOT = '/home/tjc/data'
 # Dataset for evaluation
 _C.DATA.DATASET = 'market1501'
+# dataset dir
+_C.DATA.DATA_DIR = "/home/tjc/data/market1501"
 # Split index
 _C.DATA.SPLIT_ID = 0
 # Whether to use labeled images, if false, detected images are used
