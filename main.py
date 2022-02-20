@@ -301,6 +301,7 @@ def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
         Preprocessor(testset, root=dataset.images_dir, transform=test_transformer),
         batch_size=batch_size, num_workers=workers,
         shuffle=False, pin_memory=True)
+    print("dataset.attr={}\n".format(getattr(dataset)))
 
     return test_loader
 
