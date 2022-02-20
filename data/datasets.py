@@ -68,9 +68,9 @@ class Market1501(object):
         if not osp.exists(self.gallery_dir):
             raise RuntimeError("'{}' is not available".format(self.gallery_dir))
 
-    def images_dir(self):
-        return None
-        
+    #def images_dir(self):
+    #    return None
+
     def _process_dir(self, dir_path, relabel=False, label_start=0):
         img_paths = glob.glob(osp.join(dir_path, '*.jpg'))
         pattern = re.compile(r'([-\d]+)_c(\d)')
