@@ -7,7 +7,7 @@ import torch
 import random
 import copy
 
-from utils import AverageMeter,to_torch
+from .utils import AverageMeter,to_torch
 
 
 def compute_ap_cmc(index, good_index, junk_index):
