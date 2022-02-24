@@ -126,7 +126,30 @@ def main(config):
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
                 features = torch.cat([features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
                 labels = torch.cat([labels[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
-                print("feature cat size={}/n".format(labels.size()))
+            @torch.no_grad()
+            def generate_cluster_features(labels, features):
+                centers = collections.defaultdict(list)
+                for i, label in enumerate(labels):
+                    if label == -1:
+                        continue
+                    centers[labels[i]].append(features[i])
+
+                centers = [
+                    torch.stack(centers[idx], dim=0).mean(0) for idx in sorted(centers.keys())
+                ]
+
+                centers = torch.stack(centers, dim=0)
+                return centers
+            pseudo_labels = labels.data.cpu().numpy()
+    
+            cluster_features = generate_cluster_features(pseudo_labels, features)
+
+            del cluster_loader, features
+
+            num_cluster = len(set(pseudo_labels)) - (1 if -1 in pseudo_labels else 0)
+
+            print("cluster_features size={}/n".format(cluster_features.size()))
+            
         embed()
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
