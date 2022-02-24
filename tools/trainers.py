@@ -1,6 +1,6 @@
 from __future__ import print_function, absolute_import
 import time
-from utils import AverageMeter
+from .utils import AverageMeter
 from IPython import embed
 
 
