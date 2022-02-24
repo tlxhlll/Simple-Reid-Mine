@@ -28,7 +28,7 @@ class Preprocessor(Dataset):
             fpath = osp.join(self.root, fname)
 
         img = Image.open(fpath).convert('RGB')
-        print("fpath={}\n".format(fpath))
+        #print("fpath={}\n".format(fpath))
 
         if self.transform is not None:
             img = self.transform(img)
