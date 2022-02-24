@@ -148,7 +148,8 @@ def main(config):
 
             num_cluster = len(set(pseudo_labels)) - (1 if -1 in pseudo_labels else 0)
 
-            print("cluster_features size={}/n".format(cluster_features.size()))
+            print("cluster_features size={}\n".format(cluster_features.size()))
+            print("cluster_features={}\n".format(cluster_features))
             
         embed()
         start_train_time = time.time()
