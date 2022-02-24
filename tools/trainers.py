@@ -52,8 +52,6 @@ class DualClusterContrastTrainer(object):
 
     def _parse_data(self, inputs):
         imgs, _, pids, _, indexes = inputs
-        #print("imgs={},pids={},indexes={}\n".format(imgs,pids,indexes))
-        #print("inputs={}\n".format(inputs))
         return imgs.cuda(), pids.cuda(), indexes.cuda()
 
     def _forward(self, inputs):

@@ -123,7 +123,7 @@ def main(config):
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
-        if epoch==-1:
+        if epoch==0:
             with torch.no_grad():
                 cluster_loader = get_test_loader(dataset, config.DATA.HEIGHT, config.DATA.WIDTH, config.DATA.TRAIN_BATCH, config.DATA.NUM_WORKERS, testset=sorted(dataset.train)) 
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
