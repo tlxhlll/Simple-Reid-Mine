@@ -120,7 +120,7 @@ def main(config):
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
-        if epoch==0:
+        if epoch==-1:
             with torch.no_grad():
                 cluster_loader = get_test_loader(dataset, config.DATA.HEIGHT, config.DATA.WIDTH, config.DATA.TRAIN_BATCH, config.DATA.NUM_WORKERS, testset=sorted(dataset.train)) 
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
@@ -150,8 +150,10 @@ def main(config):
 
             print("cluster_features size={}\n".format(cluster_features.size()))
             print("cluster_features={}\n".format(cluster_features))
+
+            dcc_loss = DCCLoss(2048,num_cluster,weight= args.w, momentum = args.momentum, init_feat=F.normalize(cluster_features, dim=1).cuda())
+            #trainer.loss = dcc_loss
             
-        embed()
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
         train_time += round(time.time() - start_train_time)        
@@ -193,11 +195,12 @@ def train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, tr
 
     end = time.time()
     
-    for batch_idx, (imgs, pids, _) in enumerate(trainloader):
-        imgs, pids = imgs.cuda(), pids.cuda()
+    for batch_idx, (imgs, pids, indexes) in enumerate(trainloader):
+        imgs, pids,indexes= imgs.cuda(), pids.cuda(),indexes.cuda()
 
         #print("pids={}\n".format(pids))
         #print("batch_idx={}/n".format(batch_idx))
+        print("indexes={}\n".format(indexes))
 
         # Measure data loading time
         data_time.update(time.time() - end)
@@ -329,6 +332,91 @@ def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
         shuffle=False, pin_memory=True)
 
     return test_loader
+
+from torch import nn,autograd
+import random
+
+class DCC(autograd.Function):
+    @staticmethod
+    def forward(ctx, inputs, targets, lut_ccc, lut_icc,  momentum):
+        ctx.lut_ccc = lut_ccc
+        ctx.lut_icc = lut_icc
+        ctx.momentum = momentum
+        ctx.save_for_backward(inputs, targets)
+        outputs_ccc = inputs.mm(ctx.lut_ccc.t())
+        outputs_icc = inputs.mm(ctx.lut_icc.t())
+
+        return outputs_ccc,outputs_icc
+
+    @staticmethod
+    def backward(ctx, grad_outputs_ccc, grad_outputs_icc):
+        inputs,targets = ctx.saved_tensors
+        grad_inputs = None
+        if ctx.needs_input_grad[0]:
+            grad_inputs = grad_outputs_ccc.mm(ctx.lut_ccc)+grad_outputs_icc.mm(ctx.lut_icc)
+
+        batch_centers = collections.defaultdict(list)
+        for instance_feature, index in zip(inputs, targets.data.cpu().numpy()):
+            batch_centers[index].append(instance_feature)
+
+        for y, features in batch_centers.items():
+            mean_feature = torch.stack(batch_centers[y],dim=0)
+            non_mean_feature = mean_feature.mean(0)
+            x = F.normalize(non_mean_feature,dim=0)
+            ctx.lut_ccc[y] = ctx.momentum * ctx.lut_ccc[y] + (1.-ctx.momentum) * x
+            ctx.lut_ccc[y] /= ctx.lut_ccc[y].norm()
+
+        del batch_centers 
+
+        for x, y in zip(inputs,targets.data.cpu().numpy()):
+            ctx.lut_icc[y] = ctx.lut_icc[y] * ctx.momentum + (1 - ctx.momentum) * x
+            ctx.lut_icc[y] /= ctx.lut_icc[y].norm()
+
+        return grad_inputs, None, None, None, None
+
+
+def oim(inputs, targets, lut_ccc, lut_icc, momentum=0.1):
+    return DCC.apply(inputs, targets, lut_ccc, lut_icc, torch.Tensor([momentum]).to(inputs.device))
+
+import copy
+class DCCLoss(nn.Module):
+    def __init__(self, num_features, num_classes, scalar=20.0, momentum=0.0,
+                 weight=None, size_average=True,init_feat=[]):
+        super(DCCLoss, self).__init__()
+        self.num_features = num_features
+        self.num_classes = num_classes
+        #print("num_classes={}/n".format(self.num_classes))
+        self.momentum = momentum
+        self.scalar = scalar
+        self.weight = weight
+        self.size_average = size_average
+        #print("self.size_average size={}\n".format(self.size_average.size()))
+        print("self.size_average={}\n".format(init_feat))
+        embed()
+
+        self.register_buffer('lut_ccc', torch.zeros(num_classes, num_features).cuda())
+        self.lut_ccc = copy.deepcopy(init_feat)
+
+        self.register_buffer('lut_icc', torch.zeros(num_classes, num_features).cuda())
+        self.lut_icc = copy.deepcopy(init_feat)
+        print('Weight:{},Momentum:{}'.format(self.weight,self.momentum))
+
+    def forward(self, inputs,  targets):
+        inputs_ccc,inputs_icc = oim(inputs, targets, self.lut_ccc, self.lut_icc, momentum=self.momentum)
+
+        inputs_ccc *= self.scalar
+        inputs_icc *= self.scalar
+
+        loss_ccc = F.cross_entropy(inputs_ccc, targets, size_average=self.size_average)
+        loss_icc = F.cross_entropy(inputs_icc, targets, size_average=self.size_average)
+
+
+
+        loss_con = F.smooth_l1_loss(inputs_ccc, inputs_icc.detach(), reduction='elementwise_mean')
+        loss = loss_ccc+loss_icc+self.weight*loss_con
+
+        return loss
+
 
 if __name__ == '__main__':
     config = parse_option()
