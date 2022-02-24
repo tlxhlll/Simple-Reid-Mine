@@ -24,6 +24,7 @@ class Market1501(object):
     dataset_dir = 'Market'
 
     def __init__(self, root='data', **kwargs):
+        super(Market1501, self).__init__()
         self.dataset_dir = osp.join(root, self.dataset_dir)
         self.train_dir = osp.join(self.dataset_dir, 'bounding_box_train')
         self.query_dir = osp.join(self.dataset_dir, 'query')
@@ -68,8 +69,6 @@ class Market1501(object):
         if not osp.exists(self.gallery_dir):
             raise RuntimeError("'{}' is not available".format(self.gallery_dir))
 
-    def images_dir(self):
-        return None
 
     def _process_dir(self, dir_path, relabel=False, label_start=0):
         img_paths = glob.glob(osp.join(dir_path, '*.jpg'))
