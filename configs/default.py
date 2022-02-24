@@ -110,6 +110,13 @@ _C.OUTPUT = '/home/tjc/logs/'
 # Tag of experiment, overwritten by command line argument
 _C.TAG = 'res50-ce-tri'
 
+_C.print_freq=20
+
+_C.temp=0.05
+
+_C.momentum=0.1
+
+_C.w=0.25
 
 def update_config(config, args):
     config.defrost()

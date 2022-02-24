@@ -1,4 +1,5 @@
 from __future__ import absolute_import,print_function
+from operator import mod
 import os
 import sys
 import time
@@ -29,8 +30,10 @@ from models import build_model
 from losses import build_losses
 from tools.eval_metrics import evaluate,extract_features
 from tools.utils import AverageMeter, Logger, save_checkpoint, set_seed
+from tools.trainers import DualClusterContrastTrainer
 from data import transforms as T
 from data.Preprocessor import Preprocessor
+from data.samplers import RandomMultipleGallerySampler
 
 from IPython import embed
 
@@ -116,7 +119,7 @@ def main(config):
     best_epoch = 0
     print("==> Start training")
 
-
+    trainer=DualClusterContrastTrainer(model)
 
     for epoch in range(start_epoch, config.TRAIN.MAX_EPOCH):
         #new
@@ -151,12 +154,16 @@ def main(config):
             print("cluster_features size={}\n".format(cluster_features.size()))
             print("cluster_features={}\n".format(cluster_features))
 
-            dcc_loss = DCCLoss(2048,num_cluster,weight= args.w, momentum = args.momentum, init_feat=F.normalize(cluster_features, dim=1).cuda())
-            #trainer.loss = dcc_loss
-            
-        start_train_time = time.time()
-        train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
-        train_time += round(time.time() - start_train_time)        
+            dcc_loss = DCCLoss(2048,num_cluster,weight= config.w, momentum = config.momentum, init_feat=F.normalize(cluster_features, dim=1).cuda())
+            trainer.loss = dcc_loss
+
+        train_loader = get_train_loader(config, dataset, config.DATA.HEIGHT, config.DATA.WIDTH, config.DATA.TRAIN_BATCH, config.DATA.NUM_WORKERS, config.DATA.NUM_INSTANCES)
+        cluster_features = trainer.train(epoch, train_loader, optimizer,print_freq=config.print_freq)
+
+
+        #start_train_time = time.time()
+        #train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
+        #train_time += round(time.time() - start_train_time)        
         
         if (epoch+1) > config.TEST.START_EVAL and config.TEST.EVAL_STEP > 0 and \
             (epoch+1) % config.TEST.EVAL_STEP == 0 or (epoch+1) == config.TRAIN.MAX_EPOCH:
@@ -332,6 +339,34 @@ def get_test_loader(dataset, height, width, batch_size, workers, testset=None):
         shuffle=False, pin_memory=True)
 
     return test_loader
+
+def get_train_loader(args, dataset, height, width, batch_size, workers,
+                     num_instances,  trainset=None):
+
+    normalizer = T.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+
+    train_transformer = T.Compose([
+        T.Resize((height, width), interpolation=3),
+        T.RandomHorizontalFlip(p=0.5),
+        T.Pad(10),
+        T.RandomCrop((height, width)),
+        T.ToTensor(),
+        normalizer,
+        T.RandomErasing(probability=0.5, mean=[0.485, 0.456, 0.406])
+    ])
+
+    train_set = sorted(dataset.train) if trainset is None else sorted(trainset)
+    rmgs_flag = num_instances > 0
+    if rmgs_flag:
+        sampler = RandomMultipleGallerySampler(train_set, num_instances)
+    else:
+        sampler = None
+    train_loader = DataLoader(Preprocessor(train_set, root=dataset.images_dir, transform=train_transformer),
+                   batch_size=batch_size, num_workers=workers, sampler=sampler,
+                   shuffle=not rmgs_flag, pin_memory=True, drop_last=True)
+
+    return train_loader
 
 from torch import nn,autograd
 import random
