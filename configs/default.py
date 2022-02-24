@@ -73,7 +73,7 @@ _C.LOSS.PAIR_M = 0.3
 # -----------------------------------------------------------------------------
 _C.TRAIN = CN()
 _C.TRAIN.START_EPOCH = 0
-_C.TRAIN.MAX_EPOCH = 60
+_C.TRAIN.MAX_EPOCH = 150
 # Optimizer
 _C.TRAIN.OPTIMIZER = CN()
 _C.TRAIN.OPTIMIZER.NAME = 'adam'
