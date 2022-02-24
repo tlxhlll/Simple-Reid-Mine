@@ -123,12 +123,11 @@ def main(config):
         if epoch==0:
             with torch.no_grad():
                 cluster_loader = get_test_loader(dataset, config.DATA.HEIGHT, config.DATA.WIDTH, config.DATA.TRAIN_BATCH, config.DATA.NUM_WORKERS, testset=sorted(dataset.train)) 
-                embed()
                 features, labels = extract_features(model, cluster_loader, print_freq=50)
                 features = torch.cat([features[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
                 labels = torch.cat([labels[f].unsqueeze(0) for f, _, _ in sorted(dataset.train)], 0)
                 print("feature cat size={}/n".format(features.size()))
-        
+        embed()
         start_train_time = time.time()
         train(epoch, model, classifier, criterion_cla, criterion_pair, optimizer, trainloader)
         train_time += round(time.time() - start_train_time)        
