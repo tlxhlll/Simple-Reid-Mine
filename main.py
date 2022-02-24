@@ -427,7 +427,6 @@ class DCCLoss(nn.Module):
         self.size_average = size_average
         #print("self.size_average size={}\n".format(self.size_average.size()))
         print("self.size_average={}\n".format(init_feat))
-        embed()
 
         self.register_buffer('lut_ccc', torch.zeros(num_classes, num_features).cuda())
         self.lut_ccc = copy.deepcopy(init_feat)
