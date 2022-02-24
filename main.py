@@ -362,7 +362,7 @@ def get_train_loader(args, dataset, height, width, batch_size, workers,
         sampler = RandomMultipleGallerySampler(train_set, num_instances)
     else:
         sampler = None
-    train_loader = DataLoader(Preprocessor(train_set, root=dataset.images_dir, transform=train_transformer),
+    train_loader = DataLoader(Preprocessor(train_set, root=None, transform=train_transformer),
                    batch_size=batch_size, num_workers=workers, sampler=sampler,
                    shuffle=not rmgs_flag, pin_memory=True, drop_last=True)
 
