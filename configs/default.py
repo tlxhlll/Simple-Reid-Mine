@@ -27,7 +27,7 @@ _C.DATA.HEIGHT = 256
 # Width of input image
 _C.DATA.WIDTH = 128
 # Batch size for training
-_C.DATA.TRAIN_BATCH = 64
+_C.DATA.TRAIN_BATCH = 128
 # Batch size for testing
 _C.DATA.TEST_BATCH = 512
 # The number of instances per identity for training sampler
@@ -73,7 +73,7 @@ _C.LOSS.PAIR_M = 0.3
 # -----------------------------------------------------------------------------
 _C.TRAIN = CN()
 _C.TRAIN.START_EPOCH = 0
-_C.TRAIN.MAX_EPOCH = 150
+_C.TRAIN.MAX_EPOCH = 120
 # Optimizer
 _C.TRAIN.OPTIMIZER = CN()
 _C.TRAIN.OPTIMIZER.NAME = 'adam'
@@ -116,7 +116,7 @@ _C.temp=0.05
 
 _C.momentum=0.1
 
-_C.w=0.25
+_C.w=0.5
 
 def update_config(config, args):
     config.defrost()
