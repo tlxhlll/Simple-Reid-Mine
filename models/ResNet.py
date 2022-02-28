@@ -9,6 +9,7 @@ class ResNet50(nn.Module):
         super().__init__()
 
         resnet50 = torchvision.models.resnet50(pretrained=True)
+        print(resnet50)
         if res4_stride == 1:
             resnet50.layer4[0].conv2.stride=(1, 1)
             resnet50.layer4[0].downsample[0].stride=(1, 1) 
